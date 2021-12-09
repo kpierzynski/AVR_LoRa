@@ -2,3 +2,4 @@ MK_USART
 main
 main.bin
 main.hex
+*.swp

@@ -25,26 +25,43 @@
 #define DDR_MISO	DDRB
 #define PORT_MISO	PORTB
 
+//Init SX1278 module
 uint8_t lora_init();
 
+//Read register on 'reg' address
 uint8_t lora_read_register( uint8_t reg );
+
+//Write register on address 'reg' with 'value' value
 void lora_write_register( uint8_t reg, uint8_t value );
-uint8_t lora_exchange( uint8_t addr, uint8_t val );
 
+//Put module into sleep mode with LoRa
 void lora_sleep();
+//Put module into standby mode with LoRa
 void lora_standby();
-
+//Put module into receive continuous mode
 void lora_rx_continuous();
+
+//Main library event function. This should run in non-blocked main loop
 void lora_event();
 
+//Register callback function for receiving data
 void register_lora_rx_event_callback(void (*callback)(uint8_t * buf, uint8_t len, uint8_t status));
+
+//Set over current protection on module
 uint8_t lora_set_ocp( uint8_t max_current );
+
+//Read Received Signal Strength Indicator (RSSI) from last received packet
 int16_t lora_last_packet_rssi( uint32_t freq );
-void lora_implicit_header();
+
+//Use explicit header mode. Module send: Preamble + Header + CRC + Payload + Payload CRC
 void lora_explicit_header();
 
+//Set transmitter power value can be set between 2 and 20.
 void lora_tx_power( uint8_t db );
+//Set working frequency. For SX1278 default value is 433 MHz
 void lora_set_freq( uint32_t freq );
+
+//Transmit data from buf
 void lora_putd( uint8_t * buf, uint8_t len );
 
 #endif

@@ -3,10 +3,23 @@
 #include "lora_mem.h"
 #include "spi.h"
 
-#include "MK_USART/mkuart.h"
-
+//Buffer for receiving data
 uint8_t buf[MAX_PKT_LENGTH];
+
+//IRQ pin flag. Note volative specifier, because this variable is used in interrupt
 volatile uint8_t rx_done_flag;
+
+//Callback function pointer
+static void (*lora_rx_event_callback)(uint8_t * buf, uint8_t len, uint8_t status);
+
+#define INTERRUPT_vect		INT0_vect
+
+void lora_interrupt_init() {
+	//Set INT0 to rising edge
+	EICRA |= (1<<ISC01)|(1<<ISC00);
+	//Allow INT0 to trigger
+	EIMSK |= (1<<INT0);
+}
 
 uint8_t lora_init() {
 	spi_init();
@@ -22,8 +35,7 @@ uint8_t lora_init() {
 
 	PORT_SS |= SS;
 
-	EICRA |= (1<<ISC01)|(1<<ISC00);
-	EIMSK |= (1<<INT0);
+	lora_interrupt_init();
 
 	uint8_t version = lora_read_register( REG_VERSION );
 	if( version != 0x12 ) return 0;
@@ -60,23 +72,29 @@ uint8_t lora_init() {
 	return 1;
 }
 
+uint8_t lora_exchange(uint8_t addr, uint8_t val) {
+	register uint8_t data;
+
+	//Set chip select (slave select or NSS) pin to low to indicate spi data transmission
+	PORT_SS &= ~SS;
+	//Send register address
+	spi_tx(addr);
+	//Read or send register value from module
+	data = spi_x(val);
+	//End transmission
+	PORT_SS |= SS;
+
+	return data;
+}
+
 uint8_t lora_read_register(uint8_t reg) {
+	//To read register, 8th bit has to be set to 0, which is achieved with masking with 0x7f
 	return lora_exchange( reg & 0x7f, 0x00 );
 }
 
 void lora_write_register(uint8_t reg, uint8_t value) {
+	//When writting to register, 8th bit has to be 1.
 	lora_exchange( reg | 0x80, value );
-}
-
-uint8_t lora_exchange(uint8_t addr, uint8_t val) {
-	register uint8_t data;
-
-	PORT_SS &= ~SS;
-	spi_tx(addr);
-	data = spi_x(val);
-	PORT_SS |= SS;
-
-	return data;
 }
 
 void lora_sleep() {
@@ -103,6 +121,7 @@ void lora_set_freq( uint32_t freq ) {
 	lora_write_register( REG_FRF_LSB, (f_Rf >> 0) & 0xFF );
 }
 
+//OverCurrentProtection
 uint8_t lora_set_ocp( uint8_t max_current ) {
 	//Datasheet page 85
 	uint8_t ocp_trim;
@@ -135,16 +154,6 @@ void lora_explicit_header() {
 	lora_write_register( REG_MODEM_CONFIG_1, reg_modem_config_1 & 0b11111110 );
 }
 
-void lora_implicit_header() {
-	//Datasheet page 29
-	//Implicit mode: preamble + payload + payload_crc
-
-	register uint8_t reg_modem_config_1 = lora_read_register( REG_MODEM_CONFIG_1 );
-
-	//RegModemConfig1: 7-4 signal bandwith, 3-1 error coding rate, 0 header type
-	lora_write_register( REG_MODEM_CONFIG_1, reg_modem_config_1 | 0b00000001 );
-}
-
 //Note: RSSI can be as low as -164. Then its outside of int8_t range (-128 to 127)
 int16_t lora_last_packet_rssi(uint32_t freq) {
 	uint8_t rssi = lora_read_register(REG_PKT_RSSI_VALUE);
@@ -163,21 +172,20 @@ void lora_tx_power( uint8_t db ) {
 	//db = 17-(15-OutputPower) = 2+OutputPower
 	//OutputPower = db - 2
 
+	//Set max current as 150mA
 	lora_set_ocp(150);
 
 	if( db > 17 )  {
-		if( db > 20 ) db = 20;
+		if( db > 20 ) db = 20; //Clamp max power to 20
 		lora_write_register( REG_PA_DAC, (0x10 << 3) | 0x07 );
 		lora_write_register( REG_PA_CONFIG, PA_BOOST | ( (db - 2) - 3 ) );
 	} else {
-		if( db < 2 ) db = 2;
+		if( db < 2 ) db = 2; //Clamp min power to 2
 		lora_write_register( REG_PA_DAC, (0x10 << 3) | 0x04 );
 		lora_write_register( REG_PA_CONFIG, PA_BOOST | (db - 2) );
 	}
 
 }
-
-static void (*lora_rx_event_callback)(uint8_t * buf, uint8_t len, uint8_t status);
 
 void register_lora_rx_event_callback(void (*callback)(uint8_t * buf, uint8_t len, uint8_t status)) {
 	lora_rx_event_callback = callback;
@@ -231,8 +239,6 @@ void lora_event() {
 	if( rx_done_flag ) {
 		uint8_t len;
 		uint8_t irq = lora_read_register(REG_IRQ_FLAGS);
-		uart_putint(irq,16);
-		uart_putc('\n');
 
 		//Clear irq status
 		lora_write_register( REG_IRQ_FLAGS, irq );
@@ -257,6 +263,6 @@ void lora_event() {
 	}
 }
 
-ISR( INT0_vect ) {
+ISR( INTERRUPT_vect ) {
 	rx_done_flag = 1;
 }
