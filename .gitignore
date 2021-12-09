@@ -1,5 +1,14 @@
 MK_USART
+src/MK_USART
+
 main
+src/main
+
 main.bin
+src/main.bin
+
 main.hex
+src/main.hex
+
 *.swp
+src/*.swp
