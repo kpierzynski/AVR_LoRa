@@ -8,4 +8,6 @@ You may add Your own uart library if needed, or just remove it from program.
 
 Note: WSL - Windows Subsystem for Linux can run windows app, so in Makefile I'm using avrdude.exe to upload code to uC, but compile on linux. 
 
+Based on arduino version: https://github.com/sandeepmistry/arduino-LoRa
+
 ![example_img](./img/board.jpg)
