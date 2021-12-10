@@ -59,6 +59,9 @@ uint8_t lora_init() {
 	//Map DIO0 to RX_DONE irq
 	lora_write_register(REG_DIO_MAPPING_1, 0x00);
 
+	lora_set_bandwidth(BANDWIDTH_7_8_KHZ);
+	lora_set_coding_rate(CODING_RATE_4_8);
+
 	lora_tx_power( 20 );
 
 	lora_explicit_header();
@@ -185,6 +188,22 @@ void lora_tx_power( uint8_t db ) {
 		lora_write_register( REG_PA_CONFIG, PA_BOOST | (db - 2) );
 	}
 
+}
+
+void lora_set_bandwidth( uint8_t mode ) {
+	//RegModemConfig1: 7-4 Bandwidth, 3-1 CodingRate, 0 ImplicitHeaderModeOn
+	//Datasheet page 112
+
+	lora_write_register( REG_MODEM_CONFIG_1, ( lora_read_register(REG_MODEM_CONFIG_1) & 0b00001111 ) | mode );
+}
+
+void lora_set_coding_rate( uint8_t rate ) {
+	//Datasheet page 27
+
+	//Datasheet page 112
+	//RegModemConfig1: 7-4 Bandwidth, 3-1 CodingRate, 0 ImplicitHeaderModeOn
+
+	lora_write_register( REG_MODEM_CONFIG_1, ( lora_read_register( REG_MODEM_CONFIG_1 ) & 0b11110001 ) | (rate << 1) );
 }
 
 void register_lora_rx_event_callback(void (*callback)(uint8_t * buf, uint8_t len, uint8_t status)) {

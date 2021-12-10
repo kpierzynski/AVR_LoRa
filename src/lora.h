@@ -50,6 +50,14 @@ void register_lora_rx_event_callback(void (*callback)(uint8_t * buf, uint8_t len
 //Set over current protection on module
 uint8_t lora_set_ocp( uint8_t max_current );
 
+//Change bandwidth
+//Use provided definitions from lora_mem.h
+void lora_set_bandwidth( uint8_t mode );
+
+//Set coding rate
+//Use provided definitions from lora_mem.h
+void lora_set_coding_rate( uint8_t rate );
+
 //Read Received Signal Strength Indicator (RSSI) from last received packet
 int16_t lora_last_packet_rssi( uint32_t freq );
 

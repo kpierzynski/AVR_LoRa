@@ -1,7 +1,7 @@
 #ifndef __LORA_MEM_
 #define __LORA_MEM_
 
-// registers
+//Registers
 #define REG_FIFO			0x00
 #define REG_OP_MODE			0x01
 #define REG_FRF_MSB			0x06
@@ -38,7 +38,7 @@
 #define REG_VERSION			0x42
 #define REG_PA_DAC			0x4d
 
-// modes
+//Modes
 #define MODE_LONG_RANGE_MODE		0x80
 #define MODE_SLEEP			0x00
 #define MODE_STDBY			0x01
@@ -46,17 +46,36 @@
 #define MODE_RX_CONTINUOUS		0x05
 #define MODE_RX_SINGLE			0x06
 
-// PA config
+//PA config
 #define PA_BOOST			0x80
 
-// IRQ masks
+//IRQ masks
 #define IRQ_TX_DONE_MASK		0x08
 #define IRQ_PAYLOAD_CRC_ERROR_MASK	0x20
 #define IRQ_RX_DONE_MASK		0x40
 
+//RSSI constants
 #define RF_MID_BAND_THRESHOLD		525E6
 #define RSSI_OFFSET_HF_PORT		157
 #define RSSI_OFFSET_LF_PORT		164
+
+//Coding rate
+#define CODING_RATE_4_5			0b001
+#define CODING_RATE_4_6			0b010
+#define CODING_RATE_4_7			0b011
+#define CODING_RATE_4_8			0b100
+
+//Bandwidth
+#define BANDWIDTH_7_8_KHZ		0b0000
+#define BANDWIDTH_10_4_KHZ		0b0001
+#define BANDWIDTH_15_6_KHZ		0b0010
+#define BANDWIDTH_20_8_KHZ		0b0011
+#define BANDWIDTH_31_25_KHZ		0b0100
+#define BANDWIDTH_41_7_KHZ		0b0101
+#define BANDWIDTH_62_5_KHZ		0b0110
+#define BANDWIDTH_125_KHZ		0b0111
+#define BANDWIDTH_250_KHZ		0b1000
+#define BANDWIDTH_500_KHZ		0b1001
 
 #define MAX_PKT_LENGTH			255
 

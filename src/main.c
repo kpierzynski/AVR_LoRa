@@ -45,6 +45,16 @@ int main() {
 	sei();
 	uart_puts("STARTING..\r\n");
 
+	/* Simple loop for constant transmitting data
+	uint8_t c = 0;
+	while( 1 ) {
+		_delay_ms(1000);
+		uint8_t b[] = { 'c', 'n', 't', ':', (c++ % 10) + 48};
+		lora_putd(b, 5);
+		PORTC |= (1<<PC5);
+	}
+	*/
+
 	while( 1 ) {
 
 		lora_event();
