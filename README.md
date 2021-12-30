@@ -1,5 +1,5 @@
 # AVR_LoRa
-Minimal LoRa SX1278 Ra-02 library written in C for AVR
+Minimal LoRa SX1278/SX1276 Ra-02 library written in C for AVR
 
 This library was writter for beginners in AVR world.
 
