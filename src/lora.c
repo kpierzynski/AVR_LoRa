@@ -194,7 +194,7 @@ void lora_set_bandwidth( uint8_t mode ) {
 	//RegModemConfig1: 7-4 Bandwidth, 3-1 CodingRate, 0 ImplicitHeaderModeOn
 	//Datasheet page 112
 
-	lora_write_register( REG_MODEM_CONFIG_1, ( lora_read_register(REG_MODEM_CONFIG_1) & 0b00001111 ) | mode );
+	lora_write_register( REG_MODEM_CONFIG_1, ( lora_read_register(REG_MODEM_CONFIG_1) & 0b00001111 ) | (mode << 4) );
 }
 
 void lora_set_coding_rate( uint8_t rate ) {
