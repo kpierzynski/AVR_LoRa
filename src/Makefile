@@ -5,7 +5,7 @@ OBJCOPY=avr-objcopy
 CFLAGS=-Wall -g -O2 -mmcu=${MCU} -DF_CPU=${F_CPU} -I.
 AVRDUDE_FLAGS=-B 8
 TARGET=main
-SRCS=main.c spi.c lora.c MK_USART/mkuart.c
+SRCS=main.c spi.c lora.c
 
 all:
 	${CC} ${CFLAGS} -o ${TARGET}.bin ${SRCS}

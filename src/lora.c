@@ -43,7 +43,7 @@ uint8_t lora_init() {
 	lora_sleep();
 	lora_write_register( REG_OP_MODE, MODE_LONG_RANGE_MODE );
 
-	lora_set_freq( 433E6 );
+	lora_set_freq( FREQUENCY );
 
 	lora_write_register( REG_FIFO_TX_BASE_ADDR, 0 );
 	lora_write_register( REG_FIFO_RX_BASE_ADDR, 0 );
@@ -59,8 +59,9 @@ uint8_t lora_init() {
 	//Map DIO0 to RX_DONE irq
 	lora_write_register(REG_DIO_MAPPING_1, 0x00);
 
-	lora_set_bandwidth(BANDWIDTH_7_8_KHZ);
-	lora_set_coding_rate(CODING_RATE_4_8);
+	lora_set_bandwidth(BANDWIDTH);
+	lora_set_spreading_factor(SPREADING_FACTOR);
+	lora_set_coding_rate(CODING_RATE);
 
 	lora_tx_power( 20 );
 
@@ -195,6 +196,13 @@ void lora_set_bandwidth( uint8_t mode ) {
 	//Datasheet page 112
 
 	lora_write_register( REG_MODEM_CONFIG_1, ( lora_read_register(REG_MODEM_CONFIG_1) & 0b00001111 ) | (mode << 4) );
+}
+
+void lora_set_spreading_factor(uint8_t sf)
+{
+	//DataSheet page 113
+	//RegModemConfig2: 7-4 SpreadingFactor 3 TxContinuousMode 2 RxPauloadCrcOn 1-0 SymbolTimeout (msb)
+	lora_write_register(REG_MODEM_CONFIG_2, (lora_read_register(REG_MODEM_CONFIG_2) & 0b00001111) | (sf << 4));
 }
 
 void lora_set_coding_rate( uint8_t rate ) {

@@ -5,6 +5,13 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 
+//==============================================
+//=================== CONFIG ===================
+#define SPREADING_FACTOR		SF7
+#define CODING_RATE				CODING_RATE_4_5
+#define BANDWIDTH				BANDWIDTH_125_KHZ
+#define FREQUENCY				433E6
+
 #define SS		(1<<PB2)
 #define DDR_SS		DDRB
 #define PORT_SS		PORTB
@@ -24,6 +31,8 @@
 #define MISO		(1<<PB4)
 #define DDR_MISO	DDRB
 #define PORT_MISO	PORTB
+//==============================================
+//==============================================
 
 //Init SX1278 module
 uint8_t lora_init();
@@ -53,6 +62,10 @@ uint8_t lora_set_ocp( uint8_t max_current );
 //Change bandwidth
 //Use provided definitions from lora_mem.h
 void lora_set_bandwidth( uint8_t mode );
+
+//Change spreading factor
+//Use provided definitions from lora_mem.h
+void lora_set_spreading_factor( uint8_t sf );
 
 //Set coding rate
 //Use provided definitions from lora_mem.h
